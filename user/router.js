@@ -11,18 +11,28 @@ router.post('/sign-up', (req, res, next) => {
         password: req.body.password,
         password_confirmation: req.body.password_confirmation,
     }
-    if(!newUser.username || !newUser.password || !newUser.password_confirmation) {res.status(400).send({ message: "PLEASE FILL IN ALL REQUIRED FIELDS"})}
+    if (!newUser.username || !newUser.password || !newUser.password_confirmation) {
+        return res.status(400).send({ message: "PLEASE FILL IN ALL REQUIRED FIELDS" })
+    }
+
     else {
         newUser.password = bcrypt.hashSync(req.body.password, 10)
-        if (bcrypt.compareSync(newUser.password_confirmation, newUser.password)) {
+        const passwordMatches = bcrypt.compareSync(newUser.password_confirmation, newUser.password)
+
+        if (!passwordMatches) return res.status(422).send({ message: "PLEASE MAKE SURE YOUR PASSWORDS MATCH" })
+
+        else {
             User
                 .findOne({
-                    where: {
-                        username: newUser.username
-                    }
+                    where: { username: newUser.username }
                 })
                 .then(user => {
-                    if (!user) {
+                    if (user) {
+                        return res.status(409).send({
+                            message: `USERNAME ${user.username} ALREADY EXISTS`
+                        })
+                    }
+                    else {
                         User
                             .create(newUser)
                             .then(user => {
@@ -34,24 +44,12 @@ router.post('/sign-up', (req, res, next) => {
                                         user_id: user.id
                                     })
                             })
-                    } else if (user.username === newUser.username) {
-                        res
-                            .status(409) //conflict?
-                            .send({
-                                message: `USERNAME ${newUser.username} ALREADY EXISTS`
-                            })
                     }
                 })
                 .catch(error => next(error))
-        } else {
-            res
-                .status(422)
-                .send({
-                    message: "PLEASE MAKE SURE YOUR PASSWORDS MATCH"
-                })
         }
     }
-   
+
 })
 
 module.exports = router
