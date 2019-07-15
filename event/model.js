@@ -12,31 +12,26 @@ const Event = db.define(
         },
         description: {
             type: Sequelize.STRING,
-            field: 'event_description',
-            allowNull: false
+            field: 'event_description'
         },
         picture: {
             type: Sequelize.STRING,
-            field: 'event_image',
-            allowNull: false
+            field: 'event_image'
         },
         startDate: {
             type: Sequelize.DATE, 
             defaultValue: Sequelize.NOW,
-            field: 'event_start',
-            allowNull: false
+            field: 'event_start'
         },
         endDate: {
             type: Sequelize.DATE,
-            defaultValue: this.startDate,
-            field: 'event_end',
-            allowNull: false
+            defaultValue: () => this.startDate,
+            field: 'event_end'
         },
         active: {
             type: Sequelize.BOOLEAN,
             defaultValue: true,
-            field: 'event_active',
-            allowNull: false
+            field: 'event_active'
         }
     }, 
     { timestamps: false, tableName: 'events' })

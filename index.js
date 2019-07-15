@@ -20,11 +20,11 @@ const port = process.env.PORT || 5000
 const jsonParser = bodyParser.json()
 
 app.use(cors())
-// app.use(jsonParser)
-// app.use(authRouter)
-// app.use(userRouter)
-// app.use(eventRouter)
-// app.use(ticketRouter)
+app.use(jsonParser)
+app.use(authRouter)
+app.use(userRouter)
+app.use(eventRouter)
+//app.use(ticketRouter)
 
 
 function onListen() {
