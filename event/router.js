@@ -20,4 +20,28 @@ router.get('/events', function (req, res) {
         .catch(error => res.status(400).send(error))
 })
 
+router.get('/events/:id', function (req, res) { 
+    const id = req.params.id
+    
+    Event.findByPk(id)
+        .then(event => {
+            if (!event) return res.status(404).send({ message: 'Event Not Found' });
+            return res.status(200).json({ event })
+        })
+        .catch(error => res.status(400).send(error))
+})
+/// create put
+router.put('/events/:id', function (req, res) { 
+    const id = req.params.id
+    Event.findByPk(id)
+        .then(event => {
+            if (!event) return res.status(404).send({ message: 'Event Not Found' });
+            return res.update({
+                event
+            }).status(200)
+        })
+        .catch(error => res.status(400).send(error))
+})
+
+
 module.exports = router
