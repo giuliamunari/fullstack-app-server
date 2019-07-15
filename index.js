@@ -24,7 +24,7 @@ app.use(jsonParser)
 app.use(authRouter)
 app.use(userRouter)
 app.use(eventRouter)
-//app.use(ticketRouter)
+app.use(ticketRouter)
 
 
 function onListen() {
