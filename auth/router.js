@@ -6,7 +6,7 @@ const auth = require('./middleware')
 
 const router = new Router()
 
-router.post('/tokens', (req, res, next) => {
+router.post('/login', (req, res, next) => {
     const username = req.body.username
     const password = req.body.password
     if (email && password) {
