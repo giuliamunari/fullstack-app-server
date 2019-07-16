@@ -31,7 +31,6 @@ router.get('/events', function (req, res) {
 
 router.get('/events/:id', function (req, res) {
     const id = req.params.id
-
     Event.findByPk(id)
         .then(event => {
             if (!event) return res.status(404).send({ message: 'Event Not Found' });
