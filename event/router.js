@@ -1,12 +1,21 @@
-const Router = require('express')
+const { Router } = require('express')
 const Event = require('./model')
+const User = require('../user/model')
 const router = new Router()
 
 router.post('/events', function (request, response, next) {
-    // if (!request.body.title) return response.status(400).send({ message: 'The name of the event and the date needs to be defined' })
-    // return 
-    Event
-        .create(request.body)
+    const newEvent = {
+        title: request.body.title,
+        description: request.body.description,
+        picture: request.body.picture,
+        startDate: request.body.startDate,
+        endDate: request.body.endDate,
+        active: true,
+        userId: request.body.userId
+    }
+    if (!request.body.title) return response.status(400).send({ message: 'The name of the event needs to be defined' })
+    return Event
+        .create(newEvent)
         .then(events => response.status(201).json({ events }))
         .catch(err => next(err))
 })
@@ -20,9 +29,9 @@ router.get('/events', function (req, res) {
         .catch(error => res.status(400).send(error))
 })
 
-router.get('/events/:id', function (req, res) { 
+router.get('/events/:id', function (req, res) {
     const id = req.params.id
-    
+
     Event.findByPk(id)
         .then(event => {
             if (!event) return res.status(404).send({ message: 'Event Not Found' });
@@ -30,18 +39,26 @@ router.get('/events/:id', function (req, res) {
         })
         .catch(error => res.status(400).send(error))
 })
-/// create put
-router.put('/events/:id', function (req, res) { 
+
+router.put('/events/:id', function (req, res, next) {
     const id = req.params.id
     Event.findByPk(id)
         .then(event => {
-            if (!event) return res.status(404).send({ message: 'Event Not Found' });
-            return res.update({
-                event
-            }).status(200)
+            if (!event) return res.status(404).send({ message: 'Event Not Found' })
+            else if (parseInt(req.body.userId) !== event.userId) return res.status(500).send({ message: 'You are not allowed to modify this event' })
+            else {
+                event.update({
+                    title: req.body.title || event.title,
+                    description: req.body.description || event.description,
+                    picture: req.body.picture || event.picture,
+                    startDate: req.body.startDate || event.startDate,
+                    endDate: req.body.endDate || event.endDate,
+                    active: req.body.active || event.active
+                })
+                res.status(200).send(event)
+            }
         })
-        .catch(error => res.status(400).send(error))
+        .catch(error => next(error))
 })
-
 
 module.exports = router
