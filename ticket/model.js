@@ -22,7 +22,7 @@ const Ticket = db.define(
             allowNull: false
         }
     },
-    { timestamps: false, tableName: 'tickets' })
+    { timestamps: true, tableName: 'tickets' })
 
 Ticket.belongsTo(User);
 User.hasMany(Ticket);

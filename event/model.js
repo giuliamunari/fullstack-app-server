@@ -25,7 +25,7 @@ const Event = db.define(
         },
         endDate: {
             type: Sequelize.DATE,
-            defaultValue: () => this.startDate,
+            defaultValue: Sequelize.NOW,
             field: 'event_end'
         },
         active: {
