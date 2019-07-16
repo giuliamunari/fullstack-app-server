@@ -9,7 +9,7 @@ const router = new Router()
 router.post('/login', (req, res, next) => {
     const username = req.body.username
     const password = req.body.password
-    if (email && password) {
+    if (username && password) {
         User.findOne({
                 where: {
                     username: username
@@ -24,8 +24,10 @@ router.post('/login', (req, res, next) => {
                 }
                 if (bcrypt.compareSync(password, entity.password)) {
                     res.send({
-                            message: "JWT",
-                            token: toJWT({ userId: entity.id })
+                            message: `Welcome ${entity.username}`,
+                            token: toJWT({ userId: entity.id }),
+                            username: entity.username,
+                            userId : entity.id
                         })
                 } else {
                     res.status(400)

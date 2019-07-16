@@ -12,14 +12,14 @@ router.post('/sign-up', (req, res, next) => {
         password_confirmation: req.body.password_confirmation,
     }
     if (!newUser.username || !newUser.password || !newUser.password_confirmation) {
-        return res.status(400).send({ message: "PLEASE FILL IN ALL REQUIRED FIELDS" })
+        return res.status(400).send( "PLEASE FILL IN ALL REQUIRED FIELDS" )
     }
 
     else {
         newUser.password = bcrypt.hashSync(req.body.password, 10)
         const passwordMatches = bcrypt.compareSync(newUser.password_confirmation, newUser.password)
 
-        if (!passwordMatches) return res.status(422).send({ message: "PLEASE MAKE SURE YOUR PASSWORDS MATCH" })
+        if (!passwordMatches) return res.status(422).send("PLEASE MAKE SURE YOUR PASSWORDS MATCH" )
 
         else {
             User
@@ -28,9 +28,7 @@ router.post('/sign-up', (req, res, next) => {
                 })
                 .then(user => {
                     if (user) {
-                        return res.status(409).send({
-                            message: `USERNAME ${user.username} ALREADY EXISTS`
-                        })
+                        return res.status(409).send(`USERNAME ${user.username} ALREADY EXISTS`)
                     }
                     else {
                         User
