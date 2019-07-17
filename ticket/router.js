@@ -21,6 +21,7 @@ router.post('/events/:id/tickets', function (req, res, next) {
                 .then(ticket => res.status(201).json({ ticket }))
                 .catch(err => next(err))
         })
+        .catch(err => next(err))
 })
 
 // get all tickets
