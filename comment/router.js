@@ -31,7 +31,7 @@ router.get('/tickets/:ticketId/comments', function (req, res, next) {
     Ticket.findByPk(ticketId)
         .then(ticket => {
             if (!ticket) return res.status(404).send('Ticket Not Found')
-            else Comment.findAll()
+            else Comment.findAll({where: {ticketId: ticketId}})
                 .then(comments => res.status(200).json({ comments }))
                 .catch(error => next(error))
         })

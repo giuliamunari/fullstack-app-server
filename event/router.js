@@ -46,7 +46,7 @@ router.put('/events/:id',auth, function (req, res, next) {
     Event.findByPk(id)
         .then(event => {
             if (!event) return res.status(404).send({ message: 'Event Not Found' })
-            else if (parseInt(req.body.userId) !== event.userId) return res.status(500).send({ message: 'You are not allowed to modify this event' })
+            else if (parseInt(req.user.id) !== event.userId) return res.status(500).send({ message: 'You are not allowed to modify this event' })
             else {
                 event.update({
                     title: req.body.title || event.title,
