@@ -1,16 +1,18 @@
 const { Router } = require('express')
 const Comment = require('./model')
+const User = require('../user/model')
 const Ticket = require('../ticket/model')
+const auth = require('../auth/middleware')
 const router = new Router()
 
 // create a comment
-router.post('/tickets/:ticketId/comments', function (req, res, next) {
+router.post('/tickets/:ticketId/comments',auth, function (req, res, next) {
     const ticketId = req.params.ticketId
     const newComment = {
-        userId: req.body.userId,
+        userId: req.user.id,
         ticketId: req.params.ticketId,
         text: req.body.text,
-        username: req.body.username
+        username: req.user.username
     }
     Ticket.findByPk(ticketId)
         .then(ticket => {
