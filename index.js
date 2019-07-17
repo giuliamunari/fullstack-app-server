@@ -7,12 +7,14 @@ require('./db')
 require('./event/model')
 require('./ticket/model')
 require('./user/model')
+require('./comment/model')
 
 //routers
 const authRouter = require('./auth/router')
 const userRouter = require('./user/router')
 const eventRouter = require('./event/router')
 const ticketRouter = require('./ticket/router')
+const commentRouter = require('./comment/router')
 
 const app = express()
 const port = process.env.PORT || 5000
@@ -25,6 +27,7 @@ app.use(authRouter)
 app.use(userRouter)
 app.use(eventRouter)
 app.use(ticketRouter)
+app.use(commentRouter)
 
 
 function onListen() {
