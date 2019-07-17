@@ -22,7 +22,6 @@ const Comment = db.define(
 
 Comment.belongsTo(User);
 User.hasMany(Comment);
-//Comment.belongsTo(User)
 Comment.belongsTo(Ticket);
 Ticket.hasMany(Comment);
 

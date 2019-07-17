@@ -2,16 +2,18 @@ const { Router } = require('express')
 const Ticket = require('./model')
 const router = new Router()
 const Event = require('../event/model');
+const User = require('../user/model')
+const auth = require('../auth/middleware');
 
 // create a ticket
-router.post('/events/:id/tickets', function (req, res, next) {
+router.post('/events/:id/tickets', auth, function (req, res, next) {
     const id = req.params.id
     const newTicket = {
         picture: req.body.picture,
         price: req.body.price,
         description: req.body.description,
         eventId: req.params.id,
-        userId: req.body.userId
+        userId: req.username.userId
     }
     Event.findByPk(id)
         .then(event => {
@@ -54,7 +56,7 @@ router.get('/events/:id/tickets/:ticketId', function (req, res, next) {
 })
 
 //update a ticket
-router.put('/events/:id/tickets/:ticketId', function (req, res, next) {
+router.put('/events/:id/tickets/:ticketId', auth, function (req, res, next) {
     const id = req.params.id
     const ticketId = req.params.ticketId
     Event.findByPk(id)
@@ -63,7 +65,7 @@ router.put('/events/:id/tickets/:ticketId', function (req, res, next) {
             else Ticket.findByPk(ticketId)
                 .then(ticket => {
                     if (!ticket) return res.status(404).send({ message: 'Ticket Not Found' })
-                    else if (parseInt(req.body.userId) !== ticket.userId) return res.status(500).send({ message: 'You are not allowed to modify this ticket' })
+                    else if (parseInt(req.user.userId) !== ticket.userId) return res.status(500).send({ message: 'You are not allowed to modify this ticket' })
                     else {
                         ticket.update({
                             picture: req.body.picture || ticket.picture,

@@ -2,8 +2,10 @@ const { Router } = require('express')
 const Event = require('./model')
 const User = require('../user/model')
 const router = new Router()
+const auth = require('../auth/middleware')
 
-router.post('/events', function (request, response, next) {
+
+router.post('/events', auth, function (request, response, next) {
     const newEvent = {
         title: request.body.title,
         description: request.body.description,
@@ -11,7 +13,7 @@ router.post('/events', function (request, response, next) {
         startDate: request.body.startDate,
         endDate: request.body.endDate,
         active: true,
-        userId: request.body.userId
+        userId: request.user.userId
     }
     if (!request.body.title) return response.status(400).send({ message: 'The name of the event needs to be defined' })
     return Event
@@ -39,7 +41,7 @@ router.get('/events/:id', function (req, res) {
         .catch(error => res.status(400).send(error))
 })
 
-router.put('/events/:id', function (req, res, next) {
+router.put('/events/:id',auth, function (req, res, next) {
     const id = req.params.id
     Event.findByPk(id)
         .then(event => {
