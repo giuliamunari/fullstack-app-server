@@ -10,22 +10,17 @@ function auth(req, res, next) {
         .findById(data.userId)
         .then(user => {
           if (!user) return next('User does not exist')
-
           req.user = user
           next()
         })
         .catch(next)
     }
     catch(error) {
-      res.status(400).send({
-        message: `Error ${error.name}: ${error.message}`,
-      })
+      res.status(400).send(`Error ${error.name}: ${error.message}`)
     }
   }
   else {
-    res.status(401).send({
-      message: 'Please supply some valid credentials'
-    })
+    res.status(401).send('Please supply some valid credentials')
   }
 }
 

@@ -17,10 +17,7 @@ router.post('/login', (req, res, next) => {
             })
             .then(entity => {
                 if (!entity) {
-                    res.status(400)
-                        .send({
-                            message: 'username does not exists'
-                        })
+                    res.status(400).send('username does not exists')
                 }
                 if (bcrypt.compareSync(password, entity.password)) {
                     res.send({
@@ -30,25 +27,15 @@ router.post('/login', (req, res, next) => {
                             userId : entity.id
                         })
                 } else {
-                    res.status(400)
-                        .send({
-                            message: 'Wrong password'
-                        })
+                    res.status(400).send('Wrong password')
                 }
             })
             .catch(err => {
                 console.error(err)
-                res
-                    .status(500)
-                    .send({
-                        message: 'Something went wrong'
-                    })
+                res.status(500).send('Something went wrong')
             })
     } else {
-        res.status(400)
-            .send({
-                message: "Please supply a valid email and password"
-            })
+        res.status(400).send("Please supply a valid email and password")
     }
 })
 
