@@ -27,18 +27,6 @@ router.post('/events/:id/tickets', auth, function (req, res, next) {
         .catch(err => res.send(`Error ${err.name}: ${err.message}`))
 })
 
-// get all tickets
-router.get('/events/:id/tickets', function (req, res, next) {
-    const id = req.params.id
-    Event.findByPk(id)
-        .then(event => {
-            if (!event) return res.status(404).send({ message: 'Event Not Found' })
-            else Ticket.findAll({ where: { eventId: id } })
-                .then(tickets => res.status(200).json({ tickets }))
-                .catch(error => next(error))
-        })
-        .catch(error => next(error))
-})
 
 
 //update a ticket
@@ -161,5 +149,58 @@ router.get('/events/:id/tickets/:ticketId', getTickets, getUsers, getComments, a
     })
     res.status(200).send({ risk: risk(), ticket: currentTicket, comments: commentsTicket, author:{ username: author.username, id: author.id}  })
 })
+
+
+// get all tickets
+router.get('/events/:id/tickets',getTickets, getUsers, getComments, function (req, res, next) {
+    const id = req.params.id
+    Event.findByPk(id)
+        .then(event => {
+            if (!event) return res.status(404).send({ message: 'Event Not Found' })
+            else Ticket.findAll({ where: { eventId: id } })
+                .then(tickets => {
+                    const newtickets = tickets.map(currentTicket=>{ 
+                        const ticketId = currentTicket.id
+                        const commentsTicket = req.allcomments.filter(c => c.ticketId === parseInt(ticketId))
+                        const ticketsOfTheEvent = req.tickets.filter(t => t.eventId === parseInt(id))
+                        const casePrice = () => {
+                            const num = ticketsOfTheEvent.reduce((a, b, i, array) => { return a + b.price / array.length }, 0)
+                            const averagePrice = Math.round(num * 100) / 100
+                            const currentTicketPercentage = (currentTicket.price * 100) / averagePrice
+                            if (currentTicketPercentage < 100) return 100 - currentTicketPercentage
+                            else if (currentTicketPercentage === 100) return 0
+                            else if ((currentTicketPercentage - 100) >= 10) return -10
+                            else return 100 - currentTicketPercentage
+                        }
+                    
+                        const caseBusinessHours = () => {
+                            const time = new Date(currentTicket.createdAt).getHours() + '.' + new Date(currentTicket.createdAt).getMinutes()
+                            const n = parseFloat(time)
+                            if (n >= 9 && n <= 17) return -10
+                            else return 10
+                        }
+                    
+                        const risk = () => {
+                            const numberAuthorTickets = req.tickets.filter(t => t.userId === currentTicket.userId).length
+                            const caseAuthor = (numberAuthorTickets <= 1) ? 10 : 0
+                            const caseComments = (commentsTicket.length > 3) ? 5 : 0
+                            const x = caseAuthor + casePrice() + caseBusinessHours() + caseComments
+                            if (x < 5) return 5
+                            else if (x > 95) return 95
+                            else return x
+                        }
+                        const newTicket = {ticket: currentTicket, risk: risk()}
+                        return newTicket
+                    } )
+                    res.status(200).json({ tickets: [...newtickets] })
+                })
+                .catch(error => next(error))
+        })
+        .catch(error => next(error))
+})
+
+
+
+
 
 module.exports = router
