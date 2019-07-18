@@ -7,22 +7,22 @@ const router = new Router()
 
 // create a comment
 router.post('/tickets/:ticketId/comments',auth, function (req, res, next) {
-    const ticketId = req.params.ticketId
-    const newComment = {
-        userId: req.user.id,
-        ticketId: req.params.ticketId,
-        text: req.body.text,
-        username: req.user.username
-    }
+    const ticketId = parseInt(req.params.ticketId)
+   
     Ticket.findByPk(ticketId)
         .then(ticket => {
             if (!ticket) return res.status(404).send('Ticket Not Found')
             else Comment
-                .create(newComment)
-                .then(comment => res.status(201).json({ comment }))
-                .catch(err => next(err))
+                .create({
+                    userId: req.user.id,
+                    ticketId: ticketId,
+                    text: req.body.text,
+                    username: req.user.username
+                })
+                .then(comment => res.status(201).send({ comment }))
+                .catch(err => res.send(`Error ${err.name}: ${err.message}`))
         })
-        .catch(error => next(error))
+        .catch(err => res.send(`Error ${err.name}: ${err.message}`))
 })
 
 // get all comments
@@ -33,9 +33,9 @@ router.get('/tickets/:ticketId/comments', function (req, res, next) {
             if (!ticket) return res.status(404).send('Ticket Not Found')
             else Comment.findAll({where: {ticketId: ticketId}})
                 .then(comments => res.status(200).json({ comments }))
-                .catch(error => next(error))
+                .catch(err => res.send(`Error ${err.name}: ${err.message}`))
         })
-        .catch(error => next(error))
+        .catch(err => res.send(`Error ${err.name}: ${err.message}`))
 })
 
 module.exports = router

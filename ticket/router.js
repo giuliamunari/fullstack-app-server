@@ -8,23 +8,23 @@ const auth = require('../auth/middleware');
 
 // create a ticket
 router.post('/events/:id/tickets', auth, function (req, res, next) {
-    const id = req.params.id
-    const newTicket = {
-        picture: req.body.picture,
-        price: req.body.price,
-        description: req.body.description,
-        eventId: req.params.id,
-        userId: req.username.userId
-    }
+    const id = parseInt(req.params.id)
+
     Event.findByPk(id)
         .then(event => {
-            if (!event) return res.status(404).send({ message: 'Event Not Found' })
+            if (!event) return res.status(404).send('Event Not Found' )
             else Ticket
-                .create(newTicket)
-                .then(ticket => res.status(201).json({ ticket }))
-                .catch(err => next(err))
+                .create({
+                    picture: req.body.picture,
+                    price: parseFloat(req.body.price),
+                    description: req.body.description,
+                    eventId: id,
+                    userId: req.body.userId
+                })
+                .then(ticket => { res.status(201).send({ticket})})
+                .catch(err => res.send(`Error ${err.name}: ${err.message}`))
         })
-        .catch(err => next(err))
+        .catch(err => res.send(`Error ${err.name}: ${err.message}`))
 })
 
 // get all tickets
@@ -43,27 +43,27 @@ router.get('/events/:id/tickets', function (req, res, next) {
 
 //update a ticket
 router.put('/events/:id/tickets/:ticketId', auth, function (req, res, next) {
-    const id = req.params.id
-    const ticketId = req.params.ticketId
+    const id =  parseInt(req.params.id)
+    const ticketId =  parseInt(req.params.ticketId)
     Event.findByPk(id)
         .then(event => {
-            if (!event) return res.status(404).send({ message: 'Event Not Found' })
+            if (!event) return res.status(404).send('Event Not Found' )
             else Ticket.findByPk(ticketId)
                 .then(ticket => {
-                    if (!ticket) return res.status(404).send({ message: 'Ticket Not Found' })
-                    else if (parseInt(req.user.userId) !== ticket.userId) return res.status(500).send({ message: 'You are not allowed to modify this ticket' })
+                    if (!ticket) return res.status(404).send('Ticket Not Found')
+                    else if (parseInt(req.body.userId) !== ticket.userId) return res.status(500).send({ message: 'You are not allowed to modify this ticket' })
                     else {
                         ticket.update({
                             picture: req.body.picture || ticket.picture,
                             price: req.body.price || ticket.price,
                             description: req.body.description || ticket.description
                         })
-                        res.status(200).send(ticket)
+                        res.status(200).send({ticket})
                     }
                 })
-                .catch(error => next(error))
+                .catch(err => res.send(`Error ${err.name}: ${err.message}`))
         })
-        .catch(error => next(error))
+        .catch(err => res.send(`Error ${err.name}: ${err.message}`))
 })
 
 
