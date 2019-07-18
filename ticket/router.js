@@ -154,13 +154,16 @@ router.get('/events/:id/tickets/:ticketId', getTickets, getUsers, getComments, a
 
     const num = ticketsOfTheEvent.reduce((a, b, i, array) => { return a + b.price / array.length }, 0)
 
-    //const averagePrice = Math.round(num * 100) / 100
-    const averagePrice = 100
+    const averagePrice = Math.round(num * 100) / 100
+   
     
     const caseAuthor = (numberAuthorTickets <= 1) ? 10 : 0
+   
+    const currentTicketPercentage = (currentTicket.price *100) /averagePrice
     
-    const deductTheDifference = ((currentTicket.price-averagePrice) >= 10) ? -10 : (averagePrice - currentTicket.price)
-    const casePrice = (currentTicket.price < averagePrice) ? (averagePrice - currentTicket.price) : deductTheDifference
+    const deductTheDifference = ((currentTicketPercentage-100) >= 10) ? -10 : (100 - currentTicketPercentage)
+
+    const casePrice = (currentTicketPercentage < 100) ? (100 - currentTicketPercentage) : deductTheDifference
     const time = new Date(currentTicket.createdAt).getHours() + '.' + new Date(currentTicket.createdAt).getMinutes()
     const caseBusinessHours = (time >= 9 && time <= 17) ? -10 : 10
     const caseComments = (commentsTicket.length > 3) ? 5 : 0
