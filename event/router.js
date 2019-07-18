@@ -3,12 +3,12 @@ const Event = require('./model')
 const User = require('../user/model')
 const router = new Router()
 const auth = require('../auth/middleware')
-
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op
 
 router.post('/events', auth, function (request, response, next) {
     if (!request.body.title) return response.status(400).send('The name of the event needs to be defined' )
     else {
-        
        return Event
         .create({
             title: request.body.title,
@@ -25,11 +25,19 @@ router.post('/events', auth, function (request, response, next) {
 })
 
 router.get('/events', function (req, res) {
-    Event.findAll()
-        .then(events => {
-            
+    const limit = req.query.limit || 9
+    const offset = req.query.offset || 0
+    
+    Promise.all([
+        Event.count(),
+        Event.findAll({ limit, offset, where: {startDate : {[Op.gt]: new Date()}} })
+      ])
+        .then(([total, events]) => {
             if (!events) return res.status(404).send('Events Not Found');
-            return res.status(200).json({ events })
+            else return res.status(200).send({
+                events, total
+              })
+            
         })
         .catch(error => res.status(400).send(`Error ${error.name}: ${error.message}`))
 })
