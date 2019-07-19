@@ -39,14 +39,14 @@ router.put('/events/:id/tickets/:ticketId', auth, function (req, res, next) {
             else Ticket.findByPk(ticketId)
                 .then(ticket => {
                     if (!ticket) return res.status(404).send('Ticket Not Found')
-                    else if (parseInt(req.body.userId) !== ticket.userId) return res.status(500).send({ message: 'You are not allowed to modify this ticket' })
+                    else if (parseInt(req.body.userId) !== ticket.userId) return res.status(500).send('You are not allowed to modify this ticket' )
                     else {
                         ticket.update({
                             picture: req.body.picture || ticket.picture,
                             price: req.body.price || ticket.price,
                             description: req.body.description || ticket.description
                         })
-                        res.status(200).send({ticket})
+                        return res.status(200).send({ticket})
                     }
                 })
                 .catch(err => res.send(`Error ${err.name}: ${err.message}`))
